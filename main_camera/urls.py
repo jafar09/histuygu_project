@@ -1,7 +1,6 @@
 from django.urls import path
-from . import views
+from .views import detect_emotion_view
 
 urlpatterns = [
-    path('camera/', views.camera_view, name='camera_view'),
-    path('upload_image/', views.upload_image, name='upload_image'),
+    path('', detect_emotion_view, name='detect'),
 ]

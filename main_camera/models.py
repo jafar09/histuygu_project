@@ -10,10 +10,3 @@ class EmotionImage(models.Model):
     def __str__(self):
         return f"{self.emotion} - {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
 
-    def image_tag(self):
-        if self.image:
-            return f'<img src="{self.image.url}" width="150" />'
-        return "Rasm yo'q"
-
-    image_tag.short_description = 'Rasm'
-    image_tag.allow_tags = True

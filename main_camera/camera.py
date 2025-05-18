@@ -10,7 +10,7 @@ model = load_model("C:/Users/Lenovo/OneDrive/Desktop/diplom_ishi/faceproject/emo
 # 7 ta emotsiya (Uzbekchaga tarjimasi bilan)
 labels = ["g'azablangan", "jirkanish", "qo‘rqish", "xursand", "neytral", "xafa", "hayratlangan"]
 
-# Papkalarni yaratish (agar mavjud bo'lmasa)
+# # Papkalarni yaratish (agar mavjud bo'lmasa)
 for label in labels:
     os.makedirs(f"dataset/{label}", exist_ok=True)
 
@@ -60,7 +60,7 @@ while True:
 
     if key & 0xFF == ord('s') and detected_label and face_img_to_save is not None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"dataset/{detected_label}/{timestamp}.jpg"
+        filename = f"/dataset/{detected_label}/{timestamp}.jpg"
         cv2.imwrite(filename, face_img_to_save)
         print(f"[+] Rasm saqlandi: {filename}")
 

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <title>Yuz Ifodasi Natijasi</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fafb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .result-container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 360px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: 700;
+            font-size: 28px;
+            letter-spacing: 0.5px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #34495e;
+            margin: 12px 0;
+            font-weight: 500;
+        }
+
+        strong {
+            color: #1abc9c;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            text-decoration: none;
+            color: white;
+            background-color: #3498db;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #217dbb;
+            box-shadow: 0 7px 20px rgba(33, 125, 187, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <h2>Yuz Ifodasi Aniqlandi</h2>
+        <p><strong>His-tuyg‘u:</strong> {{ emotion }}</p>
+        <p><strong>Ishonchlilik darajasi:</strong> {{ probability }}</p>
+        {% if image_url %}
+    <div style="margin-top: 20px;">
+        <img src="{{ image_url }}" alt="Aniqlangan rasm" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+    </div>
+{% endif %}
+        <a href="{% url 'detect' %}">Orqaga qaytish</a>
+    </div>
+</body>
+</html>

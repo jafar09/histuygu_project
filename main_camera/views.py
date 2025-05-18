@@ -1,40 +1,67 @@
 import base64
 import os
+import cv2
+import numpy as np
 from datetime import datetime
-from django.http import JsonResponse
+from django.conf import settings
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from .models import EmotionImage
+from tensorflow.keras.models import load_model
 
-@csrf_exempt
-def upload_image(request):
-    import json
+model = load_model("C:/Users/Lenovo/OneDrive/Desktop/diplom_ishi/faceproject/emotion_model_new.h5")
+labels = ["g'azablangan", "jirkanish", "qo‘rqish", "xursand", "neytral", "xafa", "hayratlangan"]
+
+def detect_emotion_view(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        image_data = data.get('image')
-        emotion = data.get('emotion')
+        image_data = request.POST.get('image')
+        if image_data:
+            format, imgstr = image_data.split(';base64,')
+            ext = format.split('/')[-1]
+            img_bytes = base64.b64decode(imgstr)
 
-        if not image_data or not emotion:
-            return JsonResponse({'status': 'error', 'message': 'Rasm yoki emotion yoq'})
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
-        format, imgstr = image_data.split(';base64,') 
-        image_bytes = base64.b64decode(imgstr)
+            nparr = np.frombuffer(img_bytes, np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        folder = 'media/face_images'
-        os.makedirs(folder, exist_ok=True)
-        filename = f"{emotion}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
-        filepath = os.path.join(folder, filename)
+            face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
-        with open(filepath, 'wb') as f:
-            f.write(image_bytes)
+            if len(faces) == 0:
+                emotion = "Yuz aniqlanmadi"
+                probability = ""
+                # Yuz aniqlanmasa rasm saqlanmaydi yoki xohlasangiz saqlashingiz mumkin
+                face_image_url = None
+                image_url = None
+            else:
+                (x, y, w, h) = faces[0]
+                face_img = gray[y:y+h, x:x+w]
+                resized = cv2.resize(face_img, (48, 48))
+                normalized = resized / 255.0
+                reshaped = np.reshape(normalized, (1, 48, 48, 1))
 
-        EmotionImage.objects.create(
-            image=f"face_images/{filename}",
-            emotion=emotion
-        )
+                result = model.predict(reshaped)
+                probabilities = result[0]
+                label_index = np.argmax(probabilities)
+                emotion = labels[label_index]
+                probability = f"{probabilities[label_index]*100:.2f} %"
 
-        return JsonResponse({'status': 'success', 'filename': filename})
-    return JsonResponse({"status': 'error', 'message': 'POST bo'lishi kerak"})
+                base_folder = os.path.join(settings.MEDIA_ROOT, 'dataset', emotion)
+                os.makedirs(base_folder, exist_ok=True)
 
-def camera_view(request):
+                face_color = img[y:y+h, x:x+w]
+                face_filename = f'{timestamp}_face.jpg'
+                face_filepath = os.path.join(base_folder, face_filename)
+                cv2.imwrite(face_filepath, face_color)
+
+                face_image_url = settings.MEDIA_URL + f'dataset/{emotion}/{face_filename}'
+                image_url = None
+
+            return render(request, 'result.html', {
+                'emotion': emotion,
+                'probability': probability,
+                'face_image_url': face_image_url,
+                'image_url': image_url
+            })
+
     return render(request, 'camera.html')

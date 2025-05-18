@@ -1,70 +1,118 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
-  <title>Yuz ifodalarini olish</title>
-  <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta charset="UTF-8" />
+    <title>Yuz ifodasini aniqlash</title>
+    <style>
+        /* Bosh sahifa butun ekran markazga */
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Konteyner */
+        .container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 360px;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        video {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            width: 320px;
+            height: 240px;
+            background: #000;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        /* Buttonlar */
+        button {
+            margin-top: 20px;
+            background: #007bff;
+            border: none;
+            color: white;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+            user-select: none;
+        }
+
+        button:hover {
+            background: #0056b3;
+            box-shadow: 0 6px 15px rgba(0,86,179,0.7);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        #snap {
+            background: #28a745;
+            box-shadow: 0 4px 12px rgba(40,167,69,0.4);
+        }
+
+        #snap:hover {
+            background: #1e7e34;
+            box-shadow: 0 6px 15px rgba(30,126,52,0.7);
+        }
+    </style>
 </head>
 <body>
-  <h2>Yuz ifodasi:</h2>
-  <select id="emotion">
-    <option value="kulgan">Kulgan</option>
-    <option value="hafalig">Hafalig</option>
-    <option value="ajablangan">Ajablangan</option>
-    <option value="g'azablangan">G'azablangan</option>
-    <option value="neytral">Neytral</option>
-  </select>
+    <div class="container">
+        <h2>Kameradan foydalanib yuz ifodasi aniqlash</h2>
 
-  <video id="video" autoplay></video>
-  <canvas id="canvas" style="display:none;"></canvas>
-  <button onclick="takePhoto()">📸 Rasmga olish</button>
+        <video id="video" autoplay></video>
+        <canvas id="canvas" width="320" height="240"></canvas>
 
-  <script>
-    const video = document.getElementById('video');
-    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-      video.srcObject = stream;
-    });
+        <br />
+        <button id="snap">📸 Rasmga olish</button>
 
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
-    }
+        <form id="imageForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="image" id="imageInput" />
+            <button type="submit">Yuborish</button>
+        </form>
+    </div>
 
-    function takePhoto() {
-      const canvas = document.getElementById('canvas');
-      const emotion = document.getElementById('emotion').value;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0);
-      const image = canvas.toDataURL('image/jpeg');
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const snap = document.getElementById('snap');
+        const imageInput = document.getElementById('imageInput');
 
-      fetch('/camera/upload_image/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ image: image, emotion: emotion })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success') {
-          alert("✅ Rasm saqlandi: " + data.filename);
-        } else {
-          alert("❌ Xatolik: " + data.message);
-        }
-      });
-    }
-  </script>
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch(() => alert("Kameraga kirish rad etildi yoki xatolik yuz berdi."));
+
+        snap.addEventListener('click', () => {
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataURL = canvas.toDataURL('image/jpeg');
+            imageInput.value = dataURL;
+            alert("Rasm olindi, endi yuborish tugmasini bosing.");
+        });
+    </script>
 </body>
 </html>
