@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+
+  <main class="main">
+    {% csrf_token %}
+    <!-- Page Title -->
+    <div class="page-title" data-aos="fade">
+      <div class="heading">
+        <div class="container">
+          <div class="row d-flex justify-content-center text-center">
+            <div class="col-lg-8">
+              <h1>Contact</h1>
+              <p class="mb-0">If you have any questions, concerns, or would like to get in touch with us, feel free to reach out. We are always here to assist you with any inquiries or feedback you may have. Our team is committed to providing the best possible service and ensuring a seamless experience. We value your input and look forward to hearing from you.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="breadcrumbs">
+        <div class="container">
+          <ol>
+            <li><a href="{% url "index" %}">Home</a></li>
+            <li class="{% url "contact" %}">Contact</li>
+          </ol>
+        </div>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact section">
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="info-wrap" data-aos="fade-up" data-aos-delay="200">
+          <div class="row gy-5">
+
+            <div class="col-lg-4">
+              <div  class="info-item d-flex align-items-center">
+                <i class="bi bi-geo-alt flex-shrink-0" ></i>
+                <div>
+                  <h3>Location</h3>
+                  <p><a href="https://www.google.pl/maps" target="_blank">Google maps</a></p>
+                </div>
+                
+              </div>
+            </div><!-- End Info Item -->
+
+            <div class="col-lg-4">
+              <div class="info-item d-flex align-items-center">
+                <i class="bi bi-telephone flex-shrink-0"></i>
+                <div>
+                  <h3>Call</h3>
+                  <p><a href="tel:+998888035883" class="text-decoration-none">+998 88 803 58 83</a></p>
+                </div>
+              </div>
+            </div><!-- End Info Item -->
+
+            <div class="col-lg-4">
+              <div class="info-item d-flex align-items-center">
+                <i class="bi bi-envelope flex-shrink-0"></i>
+                <div>
+                  <h3>Email</h3>
+                  <p>
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=usershomurodov@gmail.com" target="_blank" >usershomurodov@gmail.com</a></p>
+               </div>
+              </div>
+            </div><!-- End Info Item -->
+
+          </div>
+        </div>
+
+        <form method="post" action="{% url 'contact' %}" class="php-email-form" data-aos="fade-up" data-aos-delay="300">
+          {% csrf_token %}
+          <div class="row gy-4">
+
+            <div class="col-md-6">
+              <input type="text" name="{{ form.name.name }}" class="form-control" placeholder="Your Name" required value="{{ form.name.value|default_if_none:'' }}">
+            </div>
+
+            <div class="col-md-6 ">
+              <input type="email" class="form-control" name="{{ form.email.name }}" placeholder="Your Email" required value="{{ form.email.value|default_if_none:'' }}">
+          </div>
+          
+          <div class="col-md-12">
+              <input type="text" class="form-control" name="{{ form.subject.name }}" placeholder="Subject" required value="{{ form.subject.value|default_if_none:'' }}">
+          </div>
+          
+          <div class="col-md-12">
+              <textarea class="form-control" name="{{ form.message.name }}" rows="6" placeholder="Message" required>{{ form.message.value|default_if_none:'' }}</textarea>
+          </div>
+          
+            <div class="col-md-12 text-center">
+              <div class="loading">Loading</div>
+              <div class="error-message"></div>
+              <div class="sent-message">Your message has been sent. Thank you!</div>
+
+              <button type="submit">Send Message</button>
+            </div>
+
+          </div>
+        </form><!-- End Contact Form -->
+
+      </div>
+
+    </section><!-- /Contact Section -->
+
+  </main>
+
+
+  <!-- Scroll Top -->
+  {% comment %} <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a> {% endcomment %}
+
+  {% comment %} <!-- Preloader -->
+  <div id="preloader">
+    <div class="line"></div>
+  </div> {% endcomment %}
+
+  <!-- Vendor JS Files -->
+
+
+{% endblock %}

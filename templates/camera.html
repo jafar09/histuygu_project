@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Yuz ifodalarini olish</title>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body>
+  <h2>Yuz ifodasi:</h2>
+  <select id="emotion">
+    <option value="kulgan">Kulgan</option>
+    <option value="hafalig">Hafalig</option>
+    <option value="ajablangan">Ajablangan</option>
+    <option value="g'azablangan">G'azablangan</option>
+    <option value="neytral">Neytral</option>
+  </select>
+
+  <video id="video" autoplay></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <button onclick="takePhoto()">📸 Rasmga olish</button>
+
+  <script>
+    const video = document.getElementById('video');
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      video.srcObject = stream;
+    });
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    function takePhoto() {
+      const canvas = document.getElementById('canvas');
+      const emotion = document.getElementById('emotion').value;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      const image = canvas.toDataURL('image/jpeg');
+
+      fetch('/camera/upload_image/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ image: image, emotion: emotion })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          alert("✅ Rasm saqlandi: " + data.filename);
+        } else {
+          alert("❌ Xatolik: " + data.message);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
